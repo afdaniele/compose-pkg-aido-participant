@@ -1,0 +1,21 @@
+{
+    "name" : "Submissions",
+    "package" : "aido_participants",
+    "menu_entry" : {
+        "order" : 3,
+        "icon" : {
+            "class" : "fa",
+            "name" : "hourglass-end"
+        },
+        "responsive" : {
+            "priority" : 35
+        },
+        "exclude_roles" : []
+    },
+    "child_pages" : [],
+    "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+    ]
+}
