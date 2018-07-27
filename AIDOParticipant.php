@@ -40,7 +40,9 @@ class AIDOParticipant{
      */
 	public static function init(){
 		if( !self::$initialized ){
-			// do stuff
+			// load CSS for AIDO
+			echo sprintf('<style type="text/css">%s</style>', file_get_contents(__DIR__.'/css/aido_compose.css'));
+			//
 			self::$initialized = true;
 			return array( 'success' => true, 'data' => null );
 		}else{
