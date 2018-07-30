@@ -9,10 +9,9 @@
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
 
 use \system\classes\Core;
-use \system\packages\aido_participant\AIDOParticipant;
+use \system\packages\aido\AIDO;
 
-// Define Constants
-
+// define features
 $features = array(
 	'page' => array(
 		'type' => 'integer',
@@ -31,7 +30,7 @@ $features = array(
 	'keywords' => array(
 		'type' => 'text',
 		'default' => null,
-		'placeholder' => 'e.g., Completed'
+		'placeholder' => 'e.g., my submission'
 	)
 );
 
@@ -49,7 +48,7 @@ $table = array(
 		'label' => array(
 			'type' => 'text',
 			'show' => true,
-			'width' => 'md-3',
+			'width' => 'md-4',
 			'align' => 'left',
 			'translation' => 'Label',
 			'editable' => false
@@ -57,12 +56,12 @@ $table = array(
 		'datetime' => array(
 			'type' => 'text',
 			'show' => true,
-			'width' => 'md-3',
+			'width' => 'md-2',
 			'align' => 'center',
 			'translation' => 'Submitted (GMT)',
 			'editable' => false
 		),
-		'status' => array(
+		'status_html' => array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-2',
@@ -95,7 +94,7 @@ $table = array(
 				'type' => '_toggle_modal',
 				'class' => 'yes-no-modal',
 				'text' => 'Delete',
-				'API_resource' => 'aido_submission',
+				'API_resource' => 'submission',
 				'API_action' => 'delete',
 				'arguments' => [
 					'id'
@@ -111,9 +110,7 @@ $table = array(
 		'_actions_column'
 	)
 );
-
 ?>
-
 
 <div style="width:100%; margin:auto">
 
@@ -127,43 +124,40 @@ $table = array(
 
 	</table>
 
-
 	<?php
-	AIDOParticipant::createSubmission( Core::getUserLogged('username'), 'fixed bug, now should work', 'something' );
-
 	// parse the arguments
 	\system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
 
-	$submissions = AIDOParticipant::getUserSubmissions( Core::getUserLogged('username') );
+	$res = AIDO::getUserSubmissions( Core::getUserLogged('username'), null, $features['page']['value'], $features['results']['value'] );
+	if( !$res['success'] ) Core::throwError( $res['data'] );
+	$total_submissions = $res['data']['total'];
+	$submissions = $res['data']['page_data'];
 
-	$tmp = [];
-	foreach( $submissions as $submission ){
-		$datetime = date_create_from_format(\DateTime::W3C, $submission['datetime']);
-		$submission['datetime'] = $datetime->format("Y-m-d H:i:s");
-		array_push( $tmp, $submission );
-	}
-	$submissions = $tmp;
-
-	// filter based on keywords (if needed)
-	if( $features['keywords']['value'] != null ){
-		$tmp = array();
-		foreach( $submissions as $submission ){
-			if( strpos($submission['label'], $features['keywords']['value']) !== false ){
-				array_push($tmp, $user);
-			}
+	foreach( $submissions as &$submission ){
+		// convert status
+		$status_icon = '';
+		$status_color = '';
+		switch( $submission['status'] ){
+			case 'Queued':
+				$status_icon = 'clock-o';
+				$status_color = 'black';
+				break;
+			case 'Running':
+				$status_icon = 'car';
+				$status_color = '#337ab7';
+				break;
+			case 'Finished':
+				$status_icon = 'check';
+				$status_color = 'green';
+				break;
+			case 'Failed':
+				$status_icon = 'exclamation-circle';
+				$status_color = 'red';
+				break;
+			default: break;
 		}
-		$submissions = $tmp;
+		$submission['status_html'] = sprintf('<span style="color:%s"><i class="fa fa-%s" aria-hidden="true"></i>&nbsp; %s</span>', $status_color, $status_icon, $submission['status']);
 	}
-
-	// compute total number of users for pagination purposes
-	$total_submissions = sizeof( $submissions );
-
-	// take the slice corresponding to the selected page
-	$submissions = array_slice(
-		$submissions,
-		($features['page']['value']-1)*$features['results']['value'],
-		$features['results']['value']
-	);
 
 	// prepare data for the table viewer
 	$res = array(
@@ -174,7 +168,6 @@ $table = array(
 
 	// <== Here is the Magic Call!
 	\system\templates\tableviewers\TableViewer::generateTableViewer( \system\classes\Configuration::$PAGE, $res, $features, $table );
-
 	?>
 
 </div>
@@ -182,8 +175,8 @@ $table = array(
 
 <script type="text/javascript">
 
-	function _edit_user( target ){
-		var userid = $(target).data('userid');
+	function _edit_submission( target ){
+		var userid = $(target).data('id');
 		//TODO: open editor modal here
 		alert( 'Not implemented yet!' );
 	}

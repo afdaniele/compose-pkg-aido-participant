@@ -1,0 +1,178 @@
+{
+    "details" : "Provides the tools for managing AIDO submissions",
+	"actions" : {
+		"list" : {
+			"details" : "Returns the list of AIDO submissions created by the user",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication" : [
+                "app"
+            ],
+		    "parameters" : {
+		        "mandatory" : {},
+		        "optional" : {
+		            "status" : {
+		                "type" : "enum",
+                        "values" : ["Queued", "Running", "Finished", "Failed"],
+                        "length" : null,
+		                "details" : "Filter the returned submission by status"
+		            },
+                    "limit" : {
+		                "type" : "numeric",
+                        "length" : null,
+		                "details" : "Return only the most recent `limit` submissions"
+		            },
+                    "recent_first" : {
+		                "type" : "boolean",
+                        "length" : null,
+		                "details" : "Order the submissions by datetime (most recent submission first)"
+		            }
+		        }
+		    },
+		    "return" : {
+		        "values" : {
+                    "submissions" : {
+		                "type" : "array",
+		                "details" : "List of objects each of which describes an AIDO submission",
+                        "_data" : [
+                            {
+                                "type" : "object",
+                                "details" : "Object describing an AIDO submission",
+                                "_data" : {
+                                    "id" : {
+                		                "type" : "numeric",
+                		                "details" : "ID of the submission"
+                		            },
+                		            "label" : {
+                		                "type" : "text",
+                		                "details" : "Label of the submission"
+                		            },
+                		            "datetime" : {
+                		                "type" : "text",
+                		                "details" : "Date and time of the submission"
+                		            },
+                		            "datetime_format" : {
+                		                "type" : "text",
+                		                "details" : "Format of the `datetime` string (e.g., W3C (https://www.w3.org/TR/NOTE-datetime))"
+                		            },
+                		            "datetime_timezone" : {
+                		                "type" : "text",
+                		                "details" : "Timezone of `datetime` (e.g., GMT)"
+                		            },
+                                    "status" : {
+                                        "type" : "enum",
+                                        "values" : ["Queued", "Running", "Finished", "Failed"],
+                                        "details" : "Status of the submission"
+                                    },
+                                    "content" : {
+                		                "type" : "text",
+                		                "details" : "URL-encoded JSON string containing the submission details (see AIDO documentation for further information)"
+                		            }
+                                }
+                            },
+                            "..."
+                        ]
+		            }
+		        }
+		    }
+		},
+        "status" : {
+			"details" : "Returns the status of an AIDO submission",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
+		    "parameters" : {
+		        "mandatory" : {
+		            "id" : {
+		                "type" : "numeric",
+                        "length" : null,
+		                "details" : "ID of the submission to query"
+		            }
+		        },
+		        "optional" : {}
+		    },
+		    "return" : {
+		        "values" : {
+                    "id" : {
+		                "type" : "numeric",
+		                "details" : "ID of the queried submission"
+		            },
+		            "label" : {
+		                "type" : "text",
+		                "details" : "Label of the submission"
+		            },
+                    "status" : {
+                        "type" : "enum",
+                        "values" : ["Queued", "Running", "Finished", "Failed"],
+                        "details" : "Status of the submission"
+                    }
+		        }
+		    }
+		},
+		"create" : {
+			"details" : "Create a new AIDO submission",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
+		    "parameters" : {
+		        "mandatory" : {
+                    "label" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "Label (not unique) associated to the submission"
+		            },
+                    "content" : {
+		                "type" : "text",
+                        "length" : null,
+		                "details" : "URL-encoded JSON string containing the submission details (see AIDO documentation for further information)"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {
+                "id" : {
+                    "type" : "numeric",
+                    "details" : "ID of the submission just created"
+                }
+            }
+		},
+        "delete" : {
+			"details" : "Removes an existing AIDO submission",
+            "access_level" : [
+                "administrator",
+                "supervisor",
+                "user"
+            ],
+            "authentication" : [
+                "web",
+                "app"
+            ],
+		    "parameters" : {
+		        "mandatory" : {
+                    "id" : {
+		                "type" : "numeric",
+                        "length" : null,
+		                "details" : "ID of the submission to delete"
+		            }
+                },
+		        "optional" : {}
+		    },
+		    "return" : {}
+		}
+	}
+}

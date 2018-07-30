@@ -1,3 +1,28 @@
 {
-    "configuration_content" : {}
+    "configuration_content" : {
+        "db_host" : {
+            "title" : "SQL Server Hostname",
+            "type" : "text",
+            "default" : null,
+            "details" : "Hostname of the SQL server hosting the AIDO database"
+        },
+        "db_name" : {
+            "title" : "SQL Database",
+            "type" : "text",
+            "default" : null,
+            "details" : "Name of the AIDO database"
+        },
+        "db_userid" : {
+            "title" : "SQL Username",
+            "type" : "text",
+            "default" : null,
+            "details" : "Username used to access the AIDO database"
+        },
+        "db_password" : {
+            "title" : "SQL Password",
+            "type" : "text",
+            "default" : null,
+            "details" : "User password"
+        }
+    }
 }
