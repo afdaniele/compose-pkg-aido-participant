@@ -24,7 +24,7 @@ $submission = $res['data'];
     <?php
     $lst_args = isset($_GET['lst'])? base64_decode($_GET['lst']) : '';
     ?>
-    <a href="<?php echo sprintf('%s%s%s%s', Configuration::$BASE, 'submissions', strlen($lst_args)>0? '?':'', $lst_args) ?>"><= Back to the list</a>
+    <a href="<?php echo sprintf('%s%s%s%s', Configuration::$BASE, 'submissions', strlen($lst_args)>0? '?':'', $lst_args) ?>">&larr; Back to the list</a>
 </p>
 
 
