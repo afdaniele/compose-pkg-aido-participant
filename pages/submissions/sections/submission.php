@@ -5,7 +5,7 @@
 
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
-require_once __DIR__.'/../utils.php';
+require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
@@ -39,7 +39,7 @@ $submission = $res['data'];
                         <h4>
                             <p style="border-bottom: 1px solid lightgray">
                                 <i class="fa fa-clock-o" aria-hidden="true" style="float:left"></i>&nbsp;
-                                <span style="margin-left:-20px">Submitted</span>
+                                <span style="margin-left:-20px">Submitted (GMT)</span>
                             </p>
                             <p style="padding:20px 0; font-weight:normal">
                                 <?php

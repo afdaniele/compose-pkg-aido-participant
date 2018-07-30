@@ -1,11 +1,11 @@
 {
-    "name" : "Submissions",
+    "name" : "Dashboard",
     "package" : "aido",
     "menu_entry" : {
-        "order" : 3,
+        "order" : 0,
         "icon" : {
             "class" : "fa",
-            "name" : "hourglass-end"
+            "name" : "dashboard"
         },
         "responsive" : {
             "priority" : 35

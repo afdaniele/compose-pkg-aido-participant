@@ -97,6 +97,7 @@ class AIDO{
 			'SELECT' => '*',
 			'FROM' => 'aido_submission',
 			'WHERE' => [],
+			'GROUP' => null,
 			'ORDER' => [],
 			'LIMIT' => null
 		];
@@ -146,12 +147,46 @@ class AIDO{
 		return self::getSubmissions( $user_id, $status, $page, $limit, $recent_first );
 	}//getUserSubmissions
 
+	public static function getUserSubmissionsStats( $user_id ){
+		// create stats
+		$stats = [
+			'Queued' => 0,
+			'Running' => 0,
+			'Finished' => 0,
+			'Failed' => 0,
+			'total' => 0
+		];
+		// create SQL filters
+		$query_parts = [
+			'SELECT' => '`status`, COUNT(*) AS count',
+			'FROM' => 'aido_submission',
+			'WHERE' => [ sprintf("`user` = '%s'", $user_id) ],
+			'GROUP' => 'status',
+			'ORDER' => [],
+			'LIMIT' => null
+		];
+		// create SQL query
+		$query = self::_build_select_mysql_query( $query_parts );
+		$res = self::$sql->query($query);
+		if( $res === false )
+			return ['success' => false, 'data' => self::$sql->error];
+		// update stats
+		// collect data of each row
+	    while( $row = $res->fetch_assoc() ){
+			$stats[$row['status']] = $row['count'];
+			$stats['total'] += $row['count'];
+	    }
+		// return
+		return ['success' => true, 'data' => $stats];
+	}//getUserSubmissionsStats
+
 	public static function getSubmission( $user_id, $submission_id ){
 		// create SQL filters
 		$query_parts = [
 			'SELECT' => '*',
 			'FROM' => 'aido_submission',
 			'WHERE' => [ sprintf("`user` = '%s'", $user_id), sprintf("`id` = '%s'", $submission_id) ],
+			'GROUP' => null,
 			'ORDER' => [],
 			'LIMIT' => null
 		];
@@ -217,10 +252,11 @@ class AIDO{
 
 	private static function _build_select_mysql_query( $query_parts ){
 		return sprintf(
-			'SELECT %s FROM %s WHERE %s %s %s',
+			'SELECT %s FROM %s WHERE %s %s %s %s',
 			$query_parts['SELECT'],
 			$query_parts['FROM'],
 			(count($query_parts['WHERE']) > 0)? implode(' AND ', $query_parts['WHERE']) : '1',
+			(!is_null($query_parts['GROUP']))? sprintf('GROUP BY `%s`', $query_parts['GROUP']) : '',
 			(count($query_parts['ORDER']) > 0)? 'ORDER BY '.implode(', ', $query_parts['ORDER']) : '',
 			(!is_null($query_parts['LIMIT']))? 'LIMIT '.$query_parts['LIMIT'] : ''
 		);

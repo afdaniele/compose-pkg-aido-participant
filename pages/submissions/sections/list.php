@@ -5,13 +5,12 @@
 
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
-require_once __DIR__.'/../utils.php';
+require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
 use \system\packages\aido\AIDO;
 use \system\templates\tableviewers\TableViewer;
-
 
 // define features
 $features = array(
