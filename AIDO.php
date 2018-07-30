@@ -45,9 +45,8 @@ class AIDO{
 			// create SQL endpoint
 			self::$sql = new \mysqli($hostname, $username, $password, $db_name);
 			// check connection
-			if ($conn->connect_error) {
-				self::$sql = null;
-				return ['success' => false, 'data' => $conn->connect_error];
+			if( self::$sql->connect_error ){
+				return ['success' => false, 'data' => self::$sql->connect_error];
 			}
 			//
 			self::$initialized = true;
@@ -56,6 +55,15 @@ class AIDO{
 			return ['success' => true, 'data' => "Module already initialized!"];
 		}
 	}//init
+
+	/** Returns whether the module is initialized.
+     *
+     *	@retval boolean
+	 *		whether the module is initialized.
+     */
+	public static function isInitialized(){
+		return self::$initialized;
+	}//isInitialized
 
     /** Safely terminates the module.
      *
@@ -108,7 +116,6 @@ class AIDO{
 		if( !is_null($limit) )
 			$size = $limit;
 		$query_parts['LIMIT'] = sprintf('%d, %d', $offset, $size);
-
 		// create SQL query
 		$query = self::_build_select_mysql_query( $query_parts );
 		$res = self::$sql->query($query);
