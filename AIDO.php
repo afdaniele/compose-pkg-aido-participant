@@ -162,7 +162,7 @@ class AIDO{
 			return ['success' => false, 'data' => self::$sql->error];
 		// get result
 		if( $res->num_rows <= 0 )
-			return ['success' => false, 'data' => 'No entry found'];
+			return ['success' => false, 'data' => sprintf('No entry found with key `%s, %s`', $user_id, $submission_id)];
 		// return
 		return ['success' => true, 'data' => $res->fetch_assoc()];
 	}//getSubmission
