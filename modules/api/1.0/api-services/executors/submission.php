@@ -23,18 +23,20 @@ function execute( &$service, &$actionName, &$arguments ){
 			// get arguments
 			$filter_status = null;
 			if( isset($arguments['status']) ) $filter_status = $arguments['status'];
-			$filter_limit = null;
-			if( isset($arguments['limit']) ) $filter_limit = $arguments['limit'];
 			$recent_first = true;
 			if( isset($arguments['recent_first']) ) $recent_first = boolval($arguments['recent_first']);
 			// get the list of submissions created by the user
-			$res = AIDO::getUserSubmissions( $user_id, $filter_status, $filter_limit, $recent_first );
+			$res = AIDO::getUserSubmissions( $user_id, $filter_status, null, null, $recent_first );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
+			// remove `user` info from submissions
+			foreach( $res['data']['page_data'] as &$subm ){
+				unset( $subm['user'] );
+			}
 			//
 			return response200OK([
-				'submissions' => $res['data']
+				'submissions' => $res['data']['page_data']
 			]);
 			break;
 		//

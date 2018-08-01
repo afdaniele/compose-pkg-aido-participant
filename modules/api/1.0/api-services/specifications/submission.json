@@ -20,11 +20,6 @@
                         "length" : null,
 		                "details" : "Filter the returned submission by status"
 		            },
-                    "limit" : {
-		                "type" : "numeric",
-                        "length" : null,
-		                "details" : "Return only the most recent `limit` submissions"
-		            },
                     "recent_first" : {
 		                "type" : "boolean",
                         "length" : null,
@@ -52,15 +47,7 @@
                 		            },
                 		            "datetime" : {
                 		                "type" : "text",
-                		                "details" : "Date and time of the submission"
-                		            },
-                		            "datetime_format" : {
-                		                "type" : "text",
-                		                "details" : "Format of the `datetime` string (e.g., W3C (https://www.w3.org/TR/NOTE-datetime))"
-                		            },
-                		            "datetime_timezone" : {
-                		                "type" : "text",
-                		                "details" : "Timezone of `datetime` (e.g., GMT)"
+                		                "details" : "Date and time of the submission (GMT)"
                 		            },
                                     "status" : {
                                         "type" : "enum",
