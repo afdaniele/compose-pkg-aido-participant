@@ -6,7 +6,7 @@
 
 
 
-namespace system\packages\aido;
+namespace system\packages\aido_participant;
 
 use \system\classes\Core;
 use \system\classes\Utils;
@@ -14,9 +14,9 @@ use \system\classes\Database;
 use \system\classes\Configuration;
 
 /**
-*   Module for managing AIDO submissions, monitoring the Robotarium, etc.
+*   Module for managing AIDO submissions
 */
-class AIDO{
+class AIDOParticipant{
 
 	private static $sql = null;
 	private static $initialized = false;
@@ -38,10 +38,10 @@ class AIDO{
 	public static function init(){
 		if( !self::$initialized ){
 			// get SQL info
-			$hostname = Core::getSetting('db_host', 'aido');
-			$db_name = Core::getSetting('db_name', 'aido');
-			$username = Core::getSetting('db_userid', 'aido');
-			$password = Core::getSetting('db_password', 'aido');
+			$hostname = Core::getSetting('db_host', 'aido_participant');
+			$db_name = Core::getSetting('db_name', 'aido_participant');
+			$username = Core::getSetting('db_userid', 'aido_participant');
+			$password = Core::getSetting('db_password', 'aido_participant');
 			// create SQL endpoint
 			self::$sql = new \mysqli($hostname, $username, $password, $db_name);
 			// check connection
@@ -280,5 +280,5 @@ class AIDO{
 		);
 	}//_build_delete_mysql_query
 
-}//AIDO
+}//AIDOParticipant
 ?>

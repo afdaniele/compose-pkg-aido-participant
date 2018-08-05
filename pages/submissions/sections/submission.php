@@ -9,12 +9,12 @@ require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\packages\aido\AIDO;
+use \system\packages\aido\AIDOParticipant;
 
 
 // get submission details
 $submission_id = Configuration::$ACTION;
-$res = AIDO::getSubmission( Core::getUserLogged('username'), $submission_id );
+$res = AIDOParticipant::getSubmission( Core::getUserLogged('username'), $submission_id );
 if( !$res['success'] ) Core::throwError( $res['data'] );
 
 $submission = $res['data'];

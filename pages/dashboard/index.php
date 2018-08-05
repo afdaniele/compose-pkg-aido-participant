@@ -8,9 +8,9 @@ require_once __DIR__.'/../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\packages\aido\AIDO;
+use \system\packages\aido\AIDOParticipant;
 
-$res = AIDO::getUserSubmissionsStats( Core::getUserLogged('username') );
+$res = AIDOParticipant::getUserSubmissionsStats( Core::getUserLogged('username') );
 if( !$res['success'] ) Core::throwError( $res['data'] );
 $stats = $res['data'];
 

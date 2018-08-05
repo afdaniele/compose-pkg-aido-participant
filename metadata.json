@@ -1,10 +1,10 @@
 {
-    "name" : "AIDO",
+    "name" : "AIDO - Participant",
     "description" : "Provides functionalities for participants and supervisors of the AIDO competition",
     "core" : {
-        "namespace" : "aido",
-        "file" : "AIDO.php",
-        "class" : "AIDO"
+        "namespace" : "aido_participant",
+        "file" : "AIDOParticipant.php",
+        "class" : "AIDOParticipant"
     },
     "dependencies" : {
         "system-packages" : [],

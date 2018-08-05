@@ -9,7 +9,7 @@ require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\packages\aido\AIDO;
+use \system\packages\aido\AIDOParticipant;
 use \system\templates\tableviewers\TableViewer;
 
 // define features
@@ -138,7 +138,7 @@ $table = array(
 // parse the arguments
 \system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
 
-$res = AIDO::getUserSubmissions( Core::getUserLogged('username'), $features['tag']['value'], $features['page']['value'], $features['results']['value'] );
+$res = AIDOParticipant::getUserSubmissions( Core::getUserLogged('username'), $features['tag']['value'], $features['page']['value'], $features['results']['value'] );
 if( !$res['success'] ) Core::throwError( $res['data'] );
 $total_submissions = $res['data']['total'];
 $submissions = $res['data']['page_data'];
