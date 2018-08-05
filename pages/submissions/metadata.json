@@ -1,6 +1,6 @@
 {
     "name" : "Submissions",
-    "package" : "aido",
+    "package" : "aido_participant",
     "menu_entry" : {
         "order" : 3,
         "icon" : {

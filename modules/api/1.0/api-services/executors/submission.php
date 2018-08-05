@@ -7,8 +7,8 @@
 
 
 
-require_once $GLOBALS['__PACKAGES__DIR__'].'/aido/AIDOParticipant.php';
-use \system\packages\aido\AIDOParticipant;
+require_once $GLOBALS['__PACKAGES__DIR__'].'/aido_participant/AIDOParticipant.php';
+use \system\packages\aido_participant\AIDOParticipant;
 use \system\classes\Core;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';

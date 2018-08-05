@@ -1,6 +1,6 @@
 {
     "name" : "Dashboard",
-    "package" : "aido",
+    "package" : "aido_participant",
     "menu_entry" : {
         "order" : 0,
         "icon" : {

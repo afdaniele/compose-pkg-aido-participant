@@ -9,7 +9,7 @@ require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\packages\aido\AIDOParticipant;
+use \system\packages\aido_participant\AIDOParticipant;
 
 
 // get submission details
