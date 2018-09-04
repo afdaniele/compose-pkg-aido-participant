@@ -143,6 +143,7 @@ class AIDODashboard{
 		if( !$res['success'] ) return $res;
 		// collect stats
 		foreach( $res['data'] as $subm ){
+			break;//TODO: disabled because `self::getSubmission` is too slow
 			$stats['status'][$subm['status']] += 1;
 			$stats['total'] += 1;
 			// get score
