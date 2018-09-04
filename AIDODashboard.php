@@ -143,11 +143,13 @@ class AIDODashboard{
 		if( !$res['success'] ) return $res;
 		// collect stats
 		foreach( $res['data'] as $subm ){
-			break;//TODO: disabled because `self::getSubmission` is too slow
 			$stats['status'][$subm['status']] += 1;
 			$stats['total'] += 1;
 			// get score
 			if( $subm['status'] == 'success' ){
+				//TODO: disabled because `self::getSubmission` is too slow
+				continue;
+				//TODO: disabled because `self::getSubmission` is too slow
 				$res = self::getSubmission($subm['submission_id'], $user_id);
 				if( !$res['success'] ) return $res;
 				if( count($res['data']['jobs']) < 1 ) continue;
