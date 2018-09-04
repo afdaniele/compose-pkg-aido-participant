@@ -5,11 +5,11 @@
 
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php';
-require_once __DIR__.'/../../../utils/utils.php';
 
 use \system\classes\Core;
 use \system\classes\Configuration;
-use \system\packages\aido_participant\AIDOParticipant;
+use \system\packages\aido\AIDO;
+use \system\packages\aido_dashboard\AIDODashboard;
 use \system\templates\tableviewers\TableViewer;
 
 // define features
@@ -32,7 +32,7 @@ $features = array(
 		'type' => 'text',
 		'default' => null,
 		'translation' => 'Status',
-		'values' => ['Queued', 'Running', 'Finished', 'Failed']
+		'values' => AIDO::getSubmissionsStatusList()
 	),
 	'keywords' => array(
 		'type' => 'text',
@@ -44,7 +44,7 @@ $features = array(
 $table = array(
 	'style' => 'table-striped table-hover',
 	'layout' => array(
-		'id' => array(
+		'submission_id' => array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-1',
@@ -52,15 +52,15 @@ $table = array(
 			'translation' => 'ID',
 			'editable' => false
 		),
-		'label' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-4',
-			'align' => 'left',
-			'translation' => 'Label',
-			'editable' => false
-		),
-		'datetime' => array(
+		// 'label' => array(
+		// 	'type' => 'text',
+		// 	'show' => true,
+		// 	'width' => 'md-4',
+		// 	'align' => 'left',
+		// 	'translation' => 'Label',
+		// 	'editable' => false
+		// ),
+		'date_submitted' => array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-2',
@@ -80,11 +80,6 @@ $table = array(
 			'type' => 'text',
 			'show' => false,
 			'editable' => false
-		),
-		'content' => array(
-			'type' => 'text',
-			'show' => false,
-			'editable' => false
 		)
 	),
 	'actions' => array(
@@ -98,7 +93,7 @@ $table = array(
 				'type' => 'custom',
 				'custom_html' => 'onclick="_submission_info(this)"',
 				'arguments' => [
-					'id', 'label', 'datetime', 'status', 'content'
+					'submission_id'
 				],
 				'static_data' => [
 					'modal-mode' => 'edit'
@@ -108,21 +103,21 @@ $table = array(
         'separator' => array(
             'type' => 'separator'
         ),
-		'delete' => array(
+		'retract' => array(
 			'type' => 'warning',
 			'glyphicon' => 'trash',
-			'tooltip' => 'Delete submission',
+			'tooltip' => 'Retract submission',
             'function' => array(
 				'type' => '_toggle_modal',
 				'class' => 'yes-no-modal',
-				'text' => 'Delete',
+				'text' => 'Retract',
 				'API_resource' => 'submission',
 				'API_action' => 'delete',
 				'arguments' => [
-					'id'
+					'submission_id'
 				],
 				'static_data' => [
-					'question' => 'Are you sure you want to delete this submission?'
+					'question' => 'Are you sure you want to retract this submission?'
 				]
 			)
 		)
@@ -138,17 +133,22 @@ $table = array(
 // parse the arguments
 \system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
 
-$res = AIDOParticipant::getUserSubmissions( Core::getUserLogged('username'), $features['tag']['value'], $features['page']['value'], $features['results']['value'] );
+$res = AIDODashboard::getUserSubmissions( null/*user_id*/, $features['tag']['value'], $features['page']['value'], $features['results']['value'] );
 if( !$res['success'] ) Core::throwError( $res['data'] );
-$total_submissions = $res['data']['total'];
-$submissions = $res['data']['page_data'];
+
+$total_submissions = count($res['data']);
+$submissions = $res['data'];
 
 foreach( $submissions as &$submission ){
-	$res = statusRender( $submission['status'] );
+	$res = AIDO::getSubmissionsStatusStyle( $submission['status'] );
 	// convert status
 	$status_icon = $res['icon'];
 	$status_color = $res['color'];
-	$submission['status_html'] = sprintf('<span style="color:%s"><i class="fa fa-%s" aria-hidden="true"></i>&nbsp; %s</span>', $status_color, $status_icon, $submission['status']);
+	$submission['status_html'] = sprintf(
+		'<span style="color:%s"><i class="fa fa-%s" aria-hidden="true"></i>&nbsp; %s</span>',
+		$status_color, $status_icon,
+		ucfirst($submission['status'])
+	);
 }
 
 // prepare data for the table viewer
@@ -170,7 +170,7 @@ TableViewer::generateTableViewer( Configuration::$PAGE, $res, $features, $table 
 	function _submission_info( target ){
 		var record = $(target).data('record');
 		// open page here
-		var url = "<?php echo sprintf('%s%s/{0}{1}{2}', Configuration::$BASE, 'submissions') ?>".format( record.id, args.length>0? '?lst=' : '', args );
+		var url = "<?php echo sprintf('%s%s/{0}{1}{2}', Configuration::$BASE, 'submissions') ?>".format( record.submission_id, args.length>0? '?lst=' : '', args );
 		location.href = url;
 	}
 

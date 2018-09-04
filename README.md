@@ -1,3 +1,3 @@
-# compose-pkg-aido-participant
+# compose-pkg-aido-dashboard
 
-AIDO submissions and Robotarium monitoring package for the \compose\ platform.
+AIDO competition monitoring package for the \compose\ platform.

@@ -1,6 +1,6 @@
 {
     "name" : "Submissions",
-    "package" : "aido_participant",
+    "package" : "aido_dashboard",
     "menu_entry" : {
         "order" : 3,
         "icon" : {
@@ -14,8 +14,6 @@
     },
     "child_pages" : [],
     "access_level" : [
-        "administrator",
-        "supervisor",
-        "user"
+        "aido:participant"
     ]
 }

@@ -7,8 +7,8 @@
 
 
 
-require_once $GLOBALS['__PACKAGES__DIR__'].'/aido_participant/AIDOParticipant.php';
-use \system\packages\aido_participant\AIDOParticipant;
+require_once $GLOBALS['__PACKAGES__DIR__'].'/aido_dashboard/AIDODashboard.php';
+use \system\packages\aido_dashboard\AIDODashboard;
 use \system\classes\Core;
 
 require_once $GLOBALS['__SYSTEM__DIR__'].'/api/1.0/utils/utils.php';
@@ -26,7 +26,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			$recent_first = true;
 			if( isset($arguments['recent_first']) ) $recent_first = boolval($arguments['recent_first']);
 			// get the list of submissions created by the user
-			$res = AIDOParticipant::getUserSubmissions( $user_id, $filter_status, null, null, $recent_first );
+			$res = AIDODashboard::getUserSubmissions( $user_id, $filter_status, null, null, $recent_first );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -46,7 +46,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			// get arguments
 			$subm_id = $arguments['id'];
 			// get submission
-			$res = AIDOParticipant::getSubmission( $user_id, $subm_id );
+			$res = AIDODashboard::getSubmission( $user_id, $subm_id );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -65,7 +65,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			$subm_label = $arguments['label'];
 			$subm_content = $arguments['content'];
 			// create submission
-			$res = AIDOParticipant::createSubmission( $user_id, $subm_label, $subm_content );
+			$res = AIDODashboard::createSubmission( $user_id, $subm_label, $subm_content );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}
@@ -81,7 +81,7 @@ function execute( &$service, &$actionName, &$arguments ){
 			// get arguments
 			$subm_id = $arguments['id'];
 			// create submission
-			$res = AIDOParticipant::deleteSubmission( $user_id, $subm_id );
+			$res = AIDODashboard::deleteSubmission( $user_id, $subm_id );
 			if( !$res['success'] ){
 				return response400BadRequest( $res['data'] );
 			}

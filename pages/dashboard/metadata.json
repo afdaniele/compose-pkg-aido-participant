@@ -1,6 +1,6 @@
 {
     "name" : "Dashboard",
-    "package" : "aido_participant",
+    "package" : "aido_dashboard",
     "menu_entry" : {
         "order" : 0,
         "icon" : {
@@ -14,8 +14,6 @@
     },
     "child_pages" : [],
     "access_level" : [
-        "administrator",
-        "supervisor",
-        "user"
+        "aido:participant"
     ]
 }
