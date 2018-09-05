@@ -122,7 +122,7 @@ class AIDODashboard{
 		if( is_null($subm) )
 			return ['success'=>false, 'data'=>sprintf('Submission with ID #%s not found', $submission_id)];
 		// convert `parameters` from JSON string to PHP object
-		$subm['parameters'] = json_decode($subm['parameters'], true);
+		// $subm['parameters'] = json_decode($subm['parameters'], true);
 		// append `jobs` section
 		$res = AIDO::callChallengesAPI( 'GET', 'jobs-by-submission', $submission_id, []/*data*/, []/*headers*/, $user_id );
 		if( !$res['success'] ) return $res;
