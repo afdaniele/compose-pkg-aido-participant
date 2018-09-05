@@ -52,14 +52,14 @@ $table = array(
 			'translation' => 'ID',
 			'editable' => false
 		),
-		// 'label' => array(
-		// 	'type' => 'text',
-		// 	'show' => true,
-		// 	'width' => 'md-4',
-		// 	'align' => 'left',
-		// 	'translation' => 'Label',
-		// 	'editable' => false
-		// ),
+		'label' => array(
+			'type' => 'text',
+			'show' => true,
+			'width' => 'md-4',
+			'align' => 'left',
+			'translation' => 'Label',
+			'editable' => false
+		),
 		'date_submitted' => array(
 			'type' => 'text',
 			'show' => true,
@@ -149,6 +149,12 @@ foreach( $submissions as &$submission ){
 		$status_color, $status_icon,
 		ucfirst($submission['status'])
 	);
+	// add label
+	if( array_key_exists('user-label', $submission['parameters']) && strlen($submission['parameters']['user-label']) > 0 ){
+		$submission['label'] = $submission['parameters']['user-label'];
+	}else{
+		$submission['label'] = 'NO LABEL';
+	}
 }
 
 // prepare data for the table viewer

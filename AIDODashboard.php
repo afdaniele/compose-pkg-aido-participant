@@ -100,6 +100,11 @@ class AIDODashboard{
 		if( !$res['success'] ) return $res;
 		// remove keys from $res['data']
 		$res['data'] = array_values($res['data']);
+		// convert `parameters` from JSON string to PHP object
+		foreach( $res['data'] as &$subm ){
+			$subm['parameters'] = json_decode($subm['parameters'], true);
+		}
+		// return result
 		return $res;
 	}//getUserSubmissions
 
