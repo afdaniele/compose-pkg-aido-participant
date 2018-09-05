@@ -139,8 +139,18 @@ if( !$res['success'] ) Core::throwError( $res['data'] );
 $total_submissions = count($res['data']);
 $submissions = $res['data'];
 
+$submissions = array_slice(
+	$submissions,
+	($features['page']['value']-1)*$features['results']['value'],
+	$features['results']['value']
+);
+
+$tmp = [];
 foreach( $submissions as &$submission ){
 	$res = AIDO::getSubmissionsStatusStyle( $submission['status'] );
+	// filter status
+	if( !is_null($features['tag']['value']) && $submission['status'] != $features['tag']['value'] )
+		continue;
 	// convert status
 	$status_icon = $res['icon'];
 	$status_color = $res['color'];
@@ -149,13 +159,21 @@ foreach( $submissions as &$submission ){
 		$status_color, $status_icon,
 		ucfirst($submission['status'])
 	);
-	// add label
-	if( array_key_exists('user-label', $submission['parameters']) && strlen($submission['parameters']['user-label']) > 0 ){
-		$submission['label'] = $submission['parameters']['user-label'];
+	// filter (by keyword)
+	if( strlen($features['keywords']['value'])>0 && stripos($submission['parameters']['user-label'], $features['keywords']['value'])===false ){
+		continue;
 	}else{
-		$submission['label'] = 'NO LABEL';
+		// add label
+		if( strlen($submission['parameters']['user-label']) > 0 ){
+			$submission['label'] = $submission['parameters']['user-label'];
+		}else{
+			$submission['label'] = 'NO LABEL';
+		}
 	}
+	// add element to results
+	array_push($tmp, $submission);
 }
+$submissions = $tmp;
 
 // prepare data for the table viewer
 $res = array(
