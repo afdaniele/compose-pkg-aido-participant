@@ -8,9 +8,13 @@ require_once $GLOBALS['__SYSTEM__DIR__'].'templates/tableviewers/TableViewer.php
 
 use \system\classes\Core;
 use \system\classes\Configuration;
+use \system\classes\Base58;
+use \system\packages\duckietown\Duckietown;
 use \system\packages\aido\AIDO;
 use \system\packages\aido_dashboard\AIDODashboard;
 use \system\templates\tableviewers\TableViewer;
+
+$page_id = 'submissions';
 
 // define features
 $features = array(
@@ -48,8 +52,16 @@ $table = array(
 			'type' => 'text',
 			'show' => true,
 			'width' => 'md-1',
-			'align' => 'left',
+			'align' => 'center',
 			'translation' => 'ID',
+			'editable' => false
+		),
+		'challenge_id' => array(
+			'type' => 'text',
+			'show' => true,
+			'width' => 'md-1',
+			'align' => 'center',
+			'translation' => 'Challenge',
 			'editable' => false
 		),
 		'label' => array(
@@ -123,61 +135,156 @@ $table = array(
 		)
 	),
 	'features' => array(
-		'_counter_column',
+		// '_counter_column',
 		'_actions_column'
 	)
 );
+
+
+$res = AIDODashboard::getChallenges();
+if( !$res['success'] ) Core::throwError( $res['data'] );
+$challenges = $res['data'];
+
+// TODO: remove
+// $challenges = [
+// 	['title' => 'A test of luck', 'challenge_id' => 2],
+// 	['title' => 'aido1_test1', 'challenge_id' => 10],
+// 	['title' => 'aido1_test2', 'challenge_id' => 11],
+// 	['title' => 'aido1_test3', 'challenge_id' => 20]
+// ];
+// TODO: remove
+
+
+
+// add challenges as features
+foreach( $challenges as $ch ){
+	$ch_key = sprintf('ch_%s', $ch['challenge_id']);
+	$features[$ch_key] = [
+		'type' => 'integer',
+		'default' => 1
+	];
+}
+
+// parse the arguments
+TableViewer::parseFeatures( $features, $_GET );
+
+// get challenges to show
+$challenges_to_show = [];
+foreach( $challenges as $ch ){
+	$ch_key = sprintf('ch_%s', $ch['challenge_id']);
+	if(booleanval($features[$ch_key]['value'])){
+		array_push($challenges_to_show, $ch['challenge_id']);
+	}
+}
 ?>
 
+<h4>Select the challenges:</h4>
+<nav class="navbar navbar-default" id="aido_challenges_selector" role="navigation" style="margin-bottom:30px">
+	<div class="container-fluid" style="padding-left:0; padding-right:0">
+		<div class="collapse navbar-collapse navbar-left" style="padding:0; width:100%">
+			<table style="width:100%; height:50px">
+				<tr>
+					<?php
+					$col_width_perc = 100.0 / floatval(count($challenges));
+					for( $i=0; $i < count($challenges); $i++ ){
+						$ch = $challenges[$i];
+						$is_last = $i == count($challenges)-1;
+						$ch_key = sprintf('ch_%s', $ch['challenge_id']);
+						$is_active = in_array( $ch['challenge_id'], $challenges_to_show );
+						?>
+						<td style="padding-left:14px">
+							<input type="checkbox"
+		                        data-toggle="toggle"
+		                        data-onstyle="primary"
+		                        data-class="fast"
+		                        data-size="mini"
+								data-challenge="<?php echo $ch['challenge_id'] ?>"
+		                        name="<?php echo $ch['title'] ?>"
+		                        <?php echo ($is_active)? 'checked' : '' ?>>
+						</td>
+						<td class="text-center" style="<?php echo !$is_last? 'border-right:1px solid lightgray;' : '';?> width:<?php echo $col_width_perc ?>%">
+							<span style="float:left; padding-left:10px; font-weight:bold">(#<?php echo $ch['challenge_id'] ?>)</span>
+							<?php echo $ch['title'] ?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+			</table>
+		</div>
+	</div>
+</nav>
+
+<script type="text/javascript">
+	var aido_challenges_urls = {
+		<?php
+		foreach( $challenges as $challenge ){
+			echo sprintf(
+				"'ch_%s' : '%s',",
+				$challenge['challenge_id'],
+				sprintf("%s%s%s",
+					Configuration::$BASE,
+					$page_id,
+					toQueryString(
+						array_keys($features),
+						$features['_valid'], true, true,
+						[sprintf('ch_%s',$challenge['challenge_id'])]
+					)
+				)
+			);
+		}
+		?>
+	};
+
+	$('#aido_challenges_selector :input').change(function(){
+		var chId = "ch_{0}".format( $(this).data('challenge') );
+		var isChecked = $(this).is(':checked')? 1 : 0;
+		// update results
+		var url = "{0}{1}={2}".format(
+			aido_challenges_urls[chId],
+			chId,
+			isChecked
+		);
+		window.location.href = url;
+	});
+</script>
+
 <?php
-// parse the arguments
-\system\templates\tableviewers\TableViewer::parseFeatures( $features, $_GET );
 
-$res = AIDODashboard::getUserSubmissions( null/*user_id*/, $features['tag']['value'], $features['page']['value'], $features['results']['value'] );
-if( !$res['success'] ) Core::throwError( $res['data'] );
-
-$total_submissions = count($res['data']);
-$submissions = $res['data'];
-
-$submissions = array_slice(
-	$submissions,
-	($features['page']['value']-1)*$features['results']['value'],
-	$features['results']['value']
+// get submission for this challenge
+$res = AIDODashboard::getUserSubmissions(
+	null /*user_id*/,
+	implode(',', $challenges_to_show),
+	$features['tag']['value'],
+	$features['page']['value'],
+	$features['results']['value'],
+	true, /* recent_first */
+	$features['keywords']['value']
 );
-
-$tmp = [];
-foreach( $submissions as &$submission ){
-	$res = AIDO::getSubmissionsStatusStyle( $submission['status'] );
-	// filter status
-	if( !is_null($features['tag']['value']) && $submission['status'] != $features['tag']['value'] )
-		continue;
-	// convert status
+if( !$res['success'] ) Core::throwError( $res['data'] );
+$submissions = $res['data'];
+$total_submissions = $res['total'];
+// convert `parameters`
+foreach( $submissions as &$subm ){
+	// label
+	$subm['parameters'] = json_decode($subm['parameters'], true);
+	$subm['label'] = strlen($subm['parameters']['user_label'])>0? $subm['parameters']['user_label'] : 'NO LABEL';
+	// status
+	$res = AIDO::getSubmissionsStatusStyle( $subm['status'] );
 	$status_icon = $res['icon'];
 	$status_color = $res['color'];
-	$submission['status_html'] = sprintf(
+	$subm['status_html'] = sprintf(
 		'<span style="color:%s"><i class="fa fa-%s" aria-hidden="true"></i>&nbsp; %s</span>',
 		$status_color, $status_icon,
-		ucfirst($submission['status'])
+		ucfirst($subm['status'])
 	);
-	// filter (by keyword)
-	if( strlen($features['keywords']['value'])>0 && stripos($submission['parameters']['user-label'], $features['keywords']['value'])===false ){
-		continue;
-	}else{
-		// add label
-		if( strlen($submission['parameters']['user-label']) > 0 ){
-			$submission['label'] = $submission['parameters']['user-label'];
-		}else{
-			$submission['label'] = 'NO LABEL';
-		}
-	}
-	// add element to results
-	array_push($tmp, $submission);
 }
-$submissions = $tmp;
+//
+$num_submissions = count($submissions);
 
 // prepare data for the table viewer
 $res = array(
-	'size' => sizeof( $submissions ),
+	'size' => $num_submissions,
 	'total' => $total_submissions,
 	'data' => $submissions
 );

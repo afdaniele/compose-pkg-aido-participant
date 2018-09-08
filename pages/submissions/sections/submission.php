@@ -18,6 +18,7 @@ $res = AIDODashboard::getSubmission( $submission_id );
 if( !$res['success'] ) Core::throwError( $res['data'] );
 
 $submission = $res['data'];
+$submission['parameters'] = json_decode($submission['parameters'], true)
 ?>
 
 <p style="margin-top:-20px; margin-bottom:40px">
@@ -126,7 +127,7 @@ $submission = $res['data'];
                                 <tr>
                                     <td style="padding:20px">
                                         <h4 style="font-weight:normal">
-                                            &ldquo;<?php echo $submission['parameters']['user-label']; ?>&rdquo;
+                                            &ldquo;<?php echo $submission['parameters']['user_label']; ?>&rdquo;
                                         </h4>
                                     </td>
                                 </tr>
@@ -179,7 +180,7 @@ $submission = $res['data'];
                                         <td><?php echo $hash_parts[1] ?></td>
                                         <td>
                                             <a role="button" class="btn btn-info btn-sm" href="<?php echo sprintf('https://hub.docker.com/r/%s/', $hash_parts[0]); ?>" target="_blank">
-                                                Open in Docker HUB
+                                                Open in Docker Hub
                                             </a>
                                         </td>
                                     </tr>

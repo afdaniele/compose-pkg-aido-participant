@@ -67,7 +67,7 @@ $stats = $res['data'];
 					<tr style="border-bottom:1px solid lightgray">
 	                    <td class="col-md-3 text-center" style="border-right:1px solid lightgray">
 	                        <h4 style="padding:30px 0; font-weight:normal; font-size:45px">
-                                <?php echo $stats['total'] ?>
+                                <?php echo $stats['total_submissions'] ?>
 	                        </h4>
 	                    </td>
 	                    <td class="col-md-3 text-center" style="border-right:1px solid lightgray">
@@ -81,7 +81,7 @@ $stats = $res['data'];
 										?>
 										<tr>
 											<td class="col-md-2 text-left">
-												<?php echo $stats['status'][$status] ?>
+												<?php echo $stats['submissions_status'][$status] ?>
 											</td>
 											<td class="text-center">
 												<span style="color:lightgray">|</span>
@@ -106,17 +106,20 @@ $stats = $res['data'];
 						<td class="col-md-3 text-center" style="border-right:1px solid lightgray">
 	                        <h4 style="padding:10px 0; font-weight:normal">
 								<?php
-								if( is_null($stats['best']['id']) ){
+								$score = 'score1';
+								$challenge = '2';
+								if( !isset($stats['best_submission_per_challenge'][$score][$challenge]) ){
 									echo '<strong>None</strong>';
 								}else{
+									$best_subm = $stats['best_submission_per_challenge'][$score][$challenge];
 									?>
 									<p class="text-center">
-										<a href="<?php echo Configuration::$BASE ?>submissions/<?php echo $stats['best']['id'] ?>" target="_self">Submission #<?php echo $stats['best']['id'] ?></a>
+										<a href="<?php echo Configuration::$BASE ?>submissions/<?php echo $best_subm['submission_id'] ?>" target="_self">Submission #<?php echo $best_subm['submission_id'] ?></a>
 									</p>
 									<p class="text-center">
 										Score:<br/><br/>
 										<span style="font-size: 25pt">
-											<?php echo sprintf("%.2f", $stats['best']['score']) ?>
+											<?php echo sprintf("%.2f", $best_subm['score']) ?>
 										</span>
 									</p>
 									<?php
@@ -136,6 +139,34 @@ $stats = $res['data'];
 	</nav>
 
 </div>
+
+
+<?php
+
+// echoArray(
+// 	AIDO::callChallengesAPI( 'GET', 'submissions', null, [
+// 		'challenge_id' => '2,3',
+// 		'status' => 'success',
+// 		'keywords' => '',
+// 		'sort_by' => 'date',
+// 		'sort_order' => 'ASC',
+// 		'page' => 3,
+// 		'results' => 1
+// 	])
+// );
+
+// echoArray(
+// 	AIDO::callChallengesAPI( 'GET', 'submission', '16' )
+// );
+
+// echoArray(
+// 	AIDO::callChallengesAPI( 'GET', 'info' )
+// );
+
+?>
+
+
+
 
 <script type="text/javascript">
 
