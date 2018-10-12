@@ -115,21 +115,21 @@ $table = array(
         'separator' => array(
             'type' => 'separator'
         ),
-		'retract' => array(
+		'retire' => array(
 			'type' => 'warning',
 			'glyphicon' => 'trash',
-			'tooltip' => 'Retract submission',
+			'tooltip' => 'Retire submission',
             'function' => array(
 				'type' => '_toggle_modal',
 				'class' => 'yes-no-modal',
-				'text' => 'Retract',
+				'text' => 'Retire',
 				'API_resource' => 'submission',
-				'API_action' => 'delete',
+				'API_action' => 'retire',
 				'arguments' => [
 					'submission_id'
 				],
 				'static_data' => [
-					'question' => 'Are you sure you want to retract this submission?'
+					'question' => 'Are you sure you want to retire this submission?'
 				]
 			)
 		)
@@ -145,6 +145,7 @@ $res = AIDODashboard::getChallenges();
 if( !$res['success'] ) Core::throwError( $res['data'] );
 $challenges = $res['data'];
 
+
 // TODO: remove
 // $challenges = [
 // 	['title' => 'A test of luck', 'challenge_id' => 2],
@@ -154,6 +155,16 @@ $challenges = $res['data'];
 // ];
 // TODO: remove
 
+
+//TODO: active
+// filter challenges
+// $tmp = [];
+// foreach( $challenges as $ch ){
+// 	if( in_array('aido1', $ch['tags']) )
+// 		array_push($tmp, $ch);
+// }
+// $challenges = $tmp;
+//TODO: active
 
 
 // add challenges as features
