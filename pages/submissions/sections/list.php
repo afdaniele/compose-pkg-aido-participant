@@ -156,15 +156,15 @@ $challenges = $res['data'];
 // TODO: remove
 
 
-//TODO: active
+//TODO: activate
 // filter challenges
-// $tmp = [];
-// foreach( $challenges as $ch ){
-// 	if( in_array('aido1', $ch['tags']) )
-// 		array_push($tmp, $ch);
-// }
-// $challenges = $tmp;
-//TODO: active
+$tmp = [];
+foreach( $challenges as $ch ){
+	if( in_array('aido1', $ch['tags']) )
+		array_push($tmp, $ch);
+}
+$challenges = $tmp;
+//TODO: activate
 
 
 // add challenges as features
