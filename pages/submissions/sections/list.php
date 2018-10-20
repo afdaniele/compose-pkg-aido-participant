@@ -145,7 +145,6 @@ $res = AIDODashboard::getChallenges();
 if( !$res['success'] ) Core::throwError( $res['data'] );
 $challenges = $res['data'];
 
-
 // TODO: remove
 // $challenges = [
 // 	['title' => 'A test of luck', 'challenge_id' => 2],
@@ -156,7 +155,6 @@ $challenges = $res['data'];
 // TODO: remove
 
 
-//TODO: activate
 // filter challenges
 $tmp = [];
 foreach( $challenges as $ch ){
@@ -164,8 +162,6 @@ foreach( $challenges as $ch ){
 		array_push($tmp, $ch);
 }
 $challenges = $tmp;
-//TODO: activate
-
 
 // add challenges as features
 foreach( $challenges as $ch ){
@@ -190,20 +186,24 @@ foreach( $challenges as $ch ){
 ?>
 
 <h4>Select the challenges:</h4>
+<?php
+$challenges_per_row = 3;
+?>
 <nav class="navbar navbar-default" id="aido_challenges_selector" role="navigation" style="margin-bottom:30px">
 	<div class="container-fluid" style="padding-left:0; padding-right:0">
 		<div class="collapse navbar-collapse navbar-left" style="padding:0; width:100%">
-			<table style="width:100%; height:50px">
+			<table style="width:100%; height:50px; font-size:9pt">
 				<tr>
 					<?php
-					$col_width_perc = 100.0 / floatval(count($challenges));
-					for( $i=0; $i < count($challenges); $i++ ){
+					$num_challenges = count($challenges);
+					$col_width_perc = 100.0 / floatval($challenges_per_row);
+					for( $i=0; $i < $num_challenges; $i++ ){
 						$ch = $challenges[$i];
-						$is_last = $i == count($challenges)-1;
+						$is_last = $i == $num_challenges-1;
 						$ch_key = sprintf('ch_%s', $ch['challenge_id']);
 						$is_active = in_array( $ch['challenge_id'], $challenges_to_show );
 						?>
-						<td style="padding-left:14px">
+						<td style="padding-left:14px; height:34px">
 							<input type="checkbox"
 		                        data-toggle="toggle"
 		                        data-onstyle="primary"
@@ -213,11 +213,20 @@ foreach( $challenges as $ch ){
 		                        name="<?php echo $ch['title'] ?>"
 		                        <?php echo ($is_active)? 'checked' : '' ?>>
 						</td>
-						<td class="text-center" style="<?php echo !$is_last? 'border-right:1px solid lightgray;' : '';?> width:<?php echo $col_width_perc ?>%">
+						<td class="text-center" style="border-right:1px solid lightgray; width:<?php echo $col_width_perc ?>%">
 							<span style="float:left; padding-left:10px; font-weight:bold">(#<?php echo $ch['challenge_id'] ?>)</span>
 							<?php echo $ch['title'] ?>
 						</td>
 						<?php
+						if( ($i+1) % $challenges_per_row == 0 ){
+							echo '</tr><tr style="border-top:1px solid lightgray">';
+						}
+					}
+					// consume empty columns
+					$rows_needed = ceil(floatval($num_challenges)/floatval($challenges_per_row));
+					$empty_cols = $rows_needed*$challenges_per_row - $num_challenges;
+					for( $i=0; $i < $empty_cols; $i++ ){
+						echo sprintf('<td></td><td style="border-right:1px solid lightgray; width:%s%%"></td>', $col_width_perc);
 					}
 					?>
 				</tr>
