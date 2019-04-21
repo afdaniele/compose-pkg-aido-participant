@@ -166,126 +166,126 @@ $challenges_tags = array_combine($challenges_ids, $challenges_tags);
 
 // define table features
 $features = array(
-	'page' => array(
-		'type' => 'integer',
-		'default' => 1,
-		'values' => null,
-		'minvalue' => 1,
-		'maxvalue' => PHP_INT_MAX
-	),
-	'results' => array(
-		'type' => 'integer',
-		'default' => 10,
-		'values' => null,
-		'minvalue' => 1,
-		'maxvalue' => PHP_INT_MAX
-	),
-	'tag' => array(
-		'type' => 'text',
-		'default' => null,
-		'translation' => 'Status',
-		'values' => AIDO::getSubmissionsStatusList()
-	),
-	'keywords' => array(
-		'type' => 'text',
-		'default' => null,
-		'placeholder' => 'e.g., my submission'
-	)
+  'page' => array(
+    'type' => 'integer',
+    'default' => 1,
+    'values' => null,
+    'minvalue' => 1,
+    'maxvalue' => PHP_INT_MAX
+  ),
+  'results' => array(
+    'type' => 'integer',
+    'default' => 10,
+    'values' => null,
+    'minvalue' => 1,
+    'maxvalue' => PHP_INT_MAX
+  ),
+  'tag' => array(
+    'type' => 'text',
+    'default' => null,
+    'translation' => 'Status',
+    'values' => AIDO::getSubmissionsStatusList()
+  ),
+  'keywords' => array(
+    'type' => 'text',
+    'default' => null,
+    'placeholder' => 'e.g., my submission'
+  )
 );
 
 $table = array(
-	'style' => 'table-striped table-hover',
-	'layout' => array(
-		'submission_id' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-1',
-			'align' => 'center',
-			'translation' => 'ID',
-			'editable' => false
-		),
-		'tags' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-2',
-			'align' => 'center',
-			'translation' => 'Tags',
-			'editable' => false
-		),
-		'user_label' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-3',
-			'align' => 'left',
-			'translation' => 'Label',
-			'editable' => false
-		),
-		'date_submitted' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-2',
-			'align' => 'center',
-			'translation' => 'Submitted (GMT)',
-			'editable' => false
-		),
-		'status_html' => array(
-			'type' => 'text',
-			'show' => true,
-			'width' => 'md-2',
-			'align' => 'center',
-			'translation' => 'Status',
-			'editable' => false
-		),
-		'status' => array(
-			'type' => 'text',
-			'show' => false,
-			'editable' => false
-		)
-	),
-	'actions' => array(
-		'_width' => 'md-2',
-		'info' => array(
-			'type' => 'default',
-			'text' => 'Open',
-			'glyphicon' => 'open',
-			'tooltip' => 'Open submission',
-            'function' => array(
-				'type' => 'custom',
-				'custom_html' => 'onclick="_submission_info(this)"',
-				'arguments' => [
-					'submission_id'
-				],
-				'static_data' => [
-					'modal-mode' => 'edit'
-				]
-			)
-		),
-        'separator' => array(
-            'type' => 'separator'
-       ),
-		'retire' => array(
-			'type' => 'warning',
-			'glyphicon' => 'trash',
-			'tooltip' => 'Retire submission',
-            'function' => array(
-				'type' => '_toggle_modal',
-				'class' => 'yes-no-modal',
-				'text' => 'Retire',
-				'API_resource' => 'submission',
-				'API_action' => 'retire',
-				'arguments' => [
-					'submission_id'
-				],
-				'static_data' => [
-					'question' => 'Are you sure you want to retire this submission?'
-				]
-			)
-		)
-	),
-	'features' => array(
-		// '_counter_column',
-		'_actions_column'
-	)
+  'style' => 'table-striped table-hover',
+  'layout' => array(
+    'submission_id' => array(
+      'type' => 'text',
+      'show' => true,
+      'width' => 'md-1',
+      'align' => 'center',
+      'translation' => 'ID',
+      'editable' => false
+    ),
+    'tags' => array(
+      'type' => 'text',
+      'show' => true,
+      'width' => 'md-2',
+      'align' => 'center',
+      'translation' => 'Tags',
+      'editable' => false
+    ),
+    'user_label' => array(
+      'type' => 'text',
+      'show' => true,
+      'width' => 'md-3',
+      'align' => 'left',
+      'translation' => 'Label',
+      'editable' => false
+    ),
+    'date_submitted' => array(
+      'type' => 'text',
+      'show' => true,
+      'width' => 'md-2',
+      'align' => 'center',
+      'translation' => 'Submitted (GMT)',
+      'editable' => false
+    ),
+    'status_html' => array(
+      'type' => 'text',
+      'show' => true,
+      'width' => 'md-2',
+      'align' => 'center',
+      'translation' => 'Status',
+      'editable' => false
+    ),
+    'status' => array(
+      'type' => 'text',
+      'show' => false,
+      'editable' => false
+    )
+  ),
+  'actions' => array(
+    '_width' => 'md-2',
+    'info' => array(
+      'type' => 'default',
+      'text' => 'Open',
+      'glyphicon' => 'open',
+      'tooltip' => 'Open submission',
+      'function' => array(
+        'type' => 'custom',
+        'custom_html' => 'onclick="_submission_info(this)"',
+        'arguments' => [
+          'submission_id'
+        ],
+        'static_data' => [
+          'modal-mode' => 'edit'
+        ]
+      )
+    ),
+    'separator' => array(
+      'type' => 'separator'
+    ),
+    'retire' => array(
+      'type' => 'warning',
+      'glyphicon' => 'trash',
+      'tooltip' => 'Retire submission',
+      'function' => array(
+        'type' => '_toggle_modal',
+        'class' => 'yes-no-modal',
+        'text' => 'Retire',
+        'API_resource' => 'submission',
+        'API_action' => 'retire',
+        'arguments' => [
+        'submission_id'
+        ],
+        'static_data' => [
+        'question' => 'Are you sure you want to retire this submission?'
+        ]
+      )
+    )
+  ),
+  'features' => array(
+    // '_counter_column',
+    '_actions_column'
+  )
 );
 
 // parse the arguments
