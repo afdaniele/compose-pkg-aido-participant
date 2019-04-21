@@ -1,28 +1,28 @@
 {
-    "details" : "Provides the tools for managing AIDO submissions",
-	"actions" : {
-        "retire" : {
-			"details" : "Retires an existing AIDO submission",
-            "access_level" : [
-                "administrator",
-                "supervisor",
-                "user"
-            ],
-            "authentication" : [
-                "web",
-                "app"
-            ],
-		    "parameters" : {
-		        "mandatory" : {
-                    "submission_id" : {
-		                "type" : "numeric",
-                        "length" : null,
-		                "details" : "ID of the submission to retire"
-		            }
-                },
-		        "optional" : {}
-		    },
-		    "return" : {}
-		}
-	}
+  "details" : "Provides the tools for managing AIDO submissions",
+  "actions" : {
+    "retire" : {
+      "details" : "Retires an existing AIDO submission",
+      "access_level" : [
+        "administrator",
+        "supervisor",
+        "user"
+      ],
+      "authentication" : [
+        "web",
+        "app"
+      ],
+      "parameters" : {
+        "mandatory" : {
+          "submission_id" : {
+            "type" : "numeric",
+            "length" : null,
+            "details" : "ID of the submission to retire"
+          }
+        },
+        "optional" : {}
+      },
+      "return" : {}
+    }
+  }
 }

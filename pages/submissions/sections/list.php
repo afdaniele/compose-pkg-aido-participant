@@ -14,9 +14,157 @@ use \system\packages\aido\AIDO;
 use \system\packages\aido_dashboard\AIDODashboard;
 use \system\templates\tableviewers\TableViewer;
 
-$page_id = 'submissions';
+$page_id = Configuration::$PAGE;
 
-// define features
+
+$groups = [
+  ['id' => 'LF', 'title' => '🚗 - Lane following'],
+  ['id' => 'LFV', 'title' => '🚗🚗 - Lane following + Vehicles'],
+  ['id' => 'LFVI', 'title' => '🚗🚗🚦 - Lane following + Vehicles + Intersections'],
+  ['id' => 'AMOD', 'title' => '🛎 - Autonomous Mobility on Demand']
+];
+$fields = [
+  ['id' => 'val', 'title' => '🏋 - Validation'],
+  ['id' => 'tst', 'title' => '🥇 - Testing']
+];
+$environments = [
+  ['id' => 'sim', 'title' => '👾 - Simulation'],
+  ['id' => 'rob', 'title' => '🏎 - Robotarium']
+];
+
+$groups_list = ['LF', 'LFV', 'LFVI', 'aido2-amod'];
+$fields_list = ['ml-validation', 'ml-testing'];
+$environments_list = ['simulation', 'robotarium'];
+
+$keys_and_choices = [
+  'ch' => &$groups,
+  'ml' => &$fields,
+  'env' => &$environments
+];
+
+$key_to_tag = [
+  'ch_LF' => 'LF',
+  'ch_LFV' => 'LFV',
+  'ch_LFVI' => 'LFVI',
+  'ch_AMOD' => 'aido2-amod',
+  'ml_val' => 'ml-validation',
+  'ml_tst' => 'ml-testing',
+  'env_sim' => 'simulation',
+  'env_rob' => 'robotarium'
+];
+
+$tag_to_icon = [
+  'LF' => '🚗',
+  'LFV' => '🚗🚗',
+  'LFVI' => '🚗🚗🚦',
+  'aido2-amod' => '🛎',
+  'ml-validation' => '🏋',
+  'ml-testing' => '🥇',
+  'simulation' => '👾',
+  'robotarium' => '🏎'
+];
+function tag_to_icon_fcn($tag){
+  global $tag_to_icon;
+  return $tag_to_icon[$tag];
+}
+
+$short_tags = [
+  'LF' => 'LF',
+  'LFV' => 'LFV',
+  'LFVI' => 'LFVI',
+  'aido2-amod' => 'AMOD',
+  'ml-validation' => 'val',
+  'ml-testing' => 'tst',
+  'simulation' => 'sim',
+  'robotarium' => 'rob'
+];
+function short_tag_fcn($tag){
+  global $short_tags;
+  return $short_tags[$tag];
+}
+
+$active_tags = [
+  'visible',
+  AIDO::getChallengesAPIversion(),
+  sprintf('aido%s', AIDO::getAIDOversion()),
+  sprintf('aido%s-embodied', AIDO::getAIDOversion())
+];
+
+$disabled_tags = [
+  sprintf('aido%s-testing', AIDO::getAIDOversion())
+];
+
+$ch_features = [];
+foreach($key_to_tag as $key => $_){
+  $ch_features[$key] = [
+    'type' => 'integer',
+		'default' => 2
+  ];
+}
+// parse the arguments
+TableViewer::parseFeatures($ch_features, $_GET);
+
+// fuse given keys with memory
+$last_selection = isset($_SESSION['_AIDO_CHALLENGES_LAST_SELECTION'])?
+  $_SESSION['_AIDO_CHALLENGES_LAST_SELECTION'] : [];
+
+$ch_features['_valid'] = array_merge($last_selection, $ch_features['_valid']);
+
+$_SESSION['_AIDO_CHALLENGES_LAST_SELECTION'] = $ch_features['_valid'];
+
+// show/hide challenges based on preferences
+foreach($keys_and_choices as $key => &$choices){
+  foreach($choices as &$choice){
+    $choice_key = sprintf('%s_%s', $key, $choice['id']);
+    $is_active = !array_key_exists($choice_key, $ch_features['_valid']) || boolval($ch_features['_valid'][$choice_key]);
+    $choice['active'] = boolval($is_active);
+    if($is_active){
+      array_push($active_tags, $key_to_tag[$choice_key]);
+    }
+  }
+}
+
+// get all challenges
+$res = AIDODashboard::getChallenges();
+if(!$res['success'])
+  Core::throwError($res['data']);
+$challenges = $res['data'];
+
+// keep only the challenges selected
+function filter_challenges(&$challenges, $active_tags, $disabled_tags){
+  global $key_to_tag;
+  if(!is_array($active_tags))
+    $active_tags = [$active_tags];
+  $all_tags = array_values($key_to_tag);
+  $disabled_tags = array_merge($disabled_tags, array_diff($all_tags, $active_tags));
+  return array_filter(
+    $challenges,
+    function($ch) use($disabled_tags){
+      return count(array_intersect($disabled_tags, $ch['tags'])) == 0;
+    }
+  );
+}//filter_challenges
+
+$challenges = filter_challenges($challenges, $active_tags, $disabled_tags);
+
+// get challenges IDs, Tags, and create map {id -> tag}
+$challenges_ids = array_map(
+  function($ch){ return $ch['challenge_id']; },
+  $challenges
+);
+$challenges_tags = array_map(
+  function($ch) use($groups_list, $fields_list, $environments_list){
+    return [
+      array_intersect($ch['tags'], $groups_list),
+      array_intersect($ch['tags'], $fields_list),
+      array_intersect($ch['tags'], $environments_list)
+    ];
+  },
+  $challenges
+);
+$challenges_tags = array_combine($challenges_ids, $challenges_tags);
+
+// define table features
 $features = array(
 	'page' => array(
 		'type' => 'integer',
@@ -56,18 +204,18 @@ $table = array(
 			'translation' => 'ID',
 			'editable' => false
 		),
-		'challenge_id' => array(
+		'tags' => array(
 			'type' => 'text',
 			'show' => true,
-			'width' => 'md-1',
+			'width' => 'md-2',
 			'align' => 'center',
-			'translation' => 'Challenge',
+			'translation' => 'Tags',
 			'editable' => false
 		),
-		'label' => array(
+		'user_label' => array(
 			'type' => 'text',
 			'show' => true,
-			'width' => 'md-4',
+			'width' => 'md-3',
 			'align' => 'left',
 			'translation' => 'Label',
 			'editable' => false
@@ -114,7 +262,7 @@ $table = array(
 		),
         'separator' => array(
             'type' => 'separator'
-        ),
+       ),
 		'retire' => array(
 			'type' => 'warning',
 			'glyphicon' => 'trash',
@@ -140,164 +288,113 @@ $table = array(
 	)
 );
 
-
-$res = AIDODashboard::getChallenges();
-if( !$res['success'] ) Core::throwError( $res['data'] );
-$challenges = $res['data'];
-
-// TODO: remove
-// $challenges = [
-// 	['title' => 'A test of luck', 'challenge_id' => 2],
-// 	['title' => 'aido1_test1', 'challenge_id' => 10],
-// 	['title' => 'aido1_test2', 'challenge_id' => 11],
-// 	['title' => 'aido1_test3', 'challenge_id' => 20]
-// ];
-// TODO: remove
-
-
-// filter challenges
-$tmp = [];
-foreach( $challenges as $ch ){
-	if( in_array('aido1', $ch['tags']) )
-		array_push($tmp, $ch);
-}
-$challenges = $tmp;
-
-// add challenges as features
-foreach( $challenges as $ch ){
-	$ch_key = sprintf('ch_%s', $ch['challenge_id']);
-	$features[$ch_key] = [
-		'type' => 'integer',
-		'default' => 1
-	];
-}
-
 // parse the arguments
-TableViewer::parseFeatures( $features, $_GET );
+TableViewer::parseFeatures($features, $_GET);
 
-// get challenges to show
-$challenges_to_show = [];
-foreach( $challenges as $ch ){
-	$ch_key = sprintf('ch_%s', $ch['challenge_id']);
-	if(booleanval($features[$ch_key]['value'])){
-		array_push($challenges_to_show, $ch['challenge_id']);
-	}
-}
 ?>
 
-<h4>Select the challenges:</h4>
 <?php
-$challenges_per_row = 3;
+include_once __DIR__.'/parts/generic_selector.php';
 ?>
-<nav class="navbar navbar-default" id="aido_challenges_selector" role="navigation" style="margin-bottom:30px">
-	<div class="container-fluid" style="padding-left:0; padding-right:0">
-		<div class="collapse navbar-collapse navbar-left" style="padding:0; width:100%">
-			<table style="width:100%; height:50px; font-size:9pt">
-				<tr>
-					<?php
-					$num_challenges = count($challenges);
-					$col_width_perc = 100.0 / floatval($challenges_per_row);
-					for( $i=0; $i < $num_challenges; $i++ ){
-						$ch = $challenges[$i];
-						$is_last = $i == $num_challenges-1;
-						$ch_key = sprintf('ch_%s', $ch['challenge_id']);
-						$is_active = in_array( $ch['challenge_id'], $challenges_to_show );
-						?>
-						<td style="padding-left:14px; height:34px">
-							<input type="checkbox"
-		                        data-toggle="toggle"
-		                        data-onstyle="primary"
-		                        data-class="fast"
-		                        data-size="mini"
-								data-challenge="<?php echo $ch['challenge_id'] ?>"
-		                        name="<?php echo $ch['title'] ?>"
-		                        <?php echo ($is_active)? 'checked' : '' ?>>
-						</td>
-						<td class="text-center" style="border-right:1px solid lightgray; width:<?php echo $col_width_perc ?>%">
-							<span style="float:left; padding-left:10px; font-weight:bold">(#<?php echo $ch['challenge_id'] ?>)</span>
-							<?php echo $ch['title'] ?>
-						</td>
-						<?php
-						if( ($i+1) % $challenges_per_row == 0 ){
-							echo '</tr><tr style="border-top:1px solid lightgray">';
-						}
-					}
-					// consume empty columns
-					$rows_needed = ceil(floatval($num_challenges)/floatval($challenges_per_row));
-					$empty_cols = $rows_needed*$challenges_per_row - $num_challenges;
-					for( $i=0; $i < $empty_cols; $i++ ){
-						echo sprintf('<td></td><td style="border-right:1px solid lightgray; width:%s%%"></td>', $col_width_perc);
-					}
-					?>
-				</tr>
-			</table>
-		</div>
-	</div>
-</nav>
+<table style="width:100%; margin-bottom:30px">
+  <tr>
+    <td style="width:46%">
+      <h5>Challenge group:</h5>
+      <?php
+      render_generic_selector($page_id, 'aido_group', 'ch', $groups, 1, $ch_features);
+      ?>
+    </td>
+    <td style="width:2%; border-right: 1px solid lightgrey"></td>
+    <td style="width:2%"></td>
+    <td style="width:23%; vertical-align:top;">
+      <h5 class="text-left">Field:</h5>
+      <?php
+      render_generic_selector($page_id, 'aido_field', 'ml', $fields, 1, $ch_features);
+      ?>
+    </td>
+    <td style="width:4%"></td>
+    <td style="width:23%; vertical-align:top;">
+      <h5 class="text-right">Environment:</h5>
+      <?php
+      render_generic_selector($page_id, 'aido_env', 'env', $environments, 1, $ch_features);
+      ?>
+    </td>
+    <td>
+  </tr>
+</table>
 
-<script type="text/javascript">
-	var aido_challenges_urls = {
-		<?php
-		foreach( $challenges as $challenge ){
-			echo sprintf(
-				"'ch_%s' : '%s',",
-				$challenge['challenge_id'],
-				sprintf("%s%s%s",
-					Configuration::$BASE,
-					$page_id,
-					toQueryString(
-						array_keys($features),
-						$features['_valid'], true, true,
-						[sprintf('ch_%s',$challenge['challenge_id'])]
-					)
-				)
-			);
-		}
-		?>
-	};
 
-	$('#aido_challenges_selector :input').change(function(){
-		var chId = "ch_{0}".format( $(this).data('challenge') );
-		var isChecked = $(this).is(':checked')? 1 : 0;
-		// update results
-		var url = "{0}{1}={2}".format(
-			aido_challenges_urls[chId],
-			chId,
-			isChecked
-		);
-		window.location.href = url;
-	});
-</script>
 
 <?php
+
+// $res = AIDO::callChallengesAPI(
+//   'GET',
+//   'submissions-list',
+//   null/*action*/,
+//   $data,
+//   []/*headers*/,
+//   null
+// );
+//
+//
+// echoArray($res);
+//
+// return;
+
+
+$challenges_to_query = (count($challenges_ids) == 0)? [999999] : $challenges_ids;
+
+$challenges_to_query = reset($challenges_to_query);
 
 // get submission for this challenge
 $res = AIDODashboard::getUserSubmissions(
 	null /*user_id*/,
-	implode(',', $challenges_to_show),
+	$challenges_to_query,
 	$features['tag']['value'],
 	$features['page']['value'],
 	$features['results']['value'],
 	true, /* recent_first */
 	$features['keywords']['value']
 );
-if( !$res['success'] ) Core::throwError( $res['data'] );
+
+// echoArray($res);
+// return;
+
+if(!$res['success'])
+  Core::throwError($res['data']);
+
+// return;
+
 $submissions = $res['data'];
 $total_submissions = $res['total'];
 // convert `parameters`
-foreach( $submissions as &$subm ){
-	// label
-	$subm['parameters'] = json_decode($subm['parameters'], true);
-	$subm['label'] = strlen($subm['parameters']['user_label'])>0? $subm['parameters']['user_label'] : 'NO LABEL';
+foreach($submissions as &$subm){
+  // label
+  $subm['user_label'] = ($subm['user_label'] == 'null')? '(empty)' : $subm['user_label'];
 	// status
-	$res = AIDO::getSubmissionsStatusStyle( $subm['status'] );
+  $subm_status = (strlen($subm['status']) > 0)? $subm['status'] : 'submitted';
+	$res = AIDO::getSubmissionsStatusStyle($subm_status);
 	$status_icon = $res['icon'];
 	$status_color = $res['color'];
 	$subm['status_html'] = sprintf(
 		'<span style="color:%s"><i class="fa fa-%s" aria-hidden="true"></i>&nbsp; %s</span>',
 		$status_color, $status_icon,
-		ucfirst($subm['status'])
+		ucfirst($subm_status)
 	);
+  // tags
+  $subm['tags'] = implode(
+    ', ',
+    array_map(
+      short_tag_fcn,
+      array_merge(...$challenges_tags[$subm['challenge_id']])
+    )
+  );
+  $subm['tags'] = sprintf(
+    '<span class="mono">%s</span>',
+    (strlen($subm['tags']) > 0)? $subm['tags'] : '(none)'
+  );
+  // datetime
+  $subm['date_submitted'] = str_replace('T', ' ', $subm['date_submitted']);
 }
 //
 $num_submissions = count($submissions);
@@ -310,18 +407,18 @@ $res = array(
 );
 
 // <== Here is the Magic Call!
-TableViewer::generateTableViewer( Configuration::$PAGE, $res, $features, $table );
+TableViewer::generateTableViewer(Configuration::$PAGE, $res, $features, $table);
 ?>
 
 
 <script type="text/javascript">
 
-	var args = "<?php echo base64_encode(toQueryString( array_keys($features), $_GET )) ?>";
+	var args = "<?php echo base64_encode(toQueryString(array_keys($features), $_GET)) ?>";
 
-	function _submission_info( target ){
+	function _submission_info(target){
 		var record = $(target).data('record');
 		// open page here
-		var url = "<?php echo sprintf('%s%s/{0}{1}{2}', Configuration::$BASE, 'submissions') ?>".format( record.submission_id, args.length>0? '?lst=' : '', args );
+		var url = "<?php echo sprintf('%s%s/{0}{1}{2}', Configuration::$BASE, 'submissions') ?>".format(record.submission_id, args.length>0? '?lst=' : '', args);
 		location.href = url;
 	}
 
