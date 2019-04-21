@@ -344,7 +344,7 @@ include_once __DIR__.'/parts/generic_selector.php';
 
 $challenges_to_query = (count($challenges_ids) == 0)? [999999] : $challenges_ids;
 
-$challenges_to_query = reset($challenges_to_query);
+// $challenges_to_query = reset($challenges_to_query);
 
 // get submission for this challenge
 $res = AIDODashboard::getUserSubmissions(
