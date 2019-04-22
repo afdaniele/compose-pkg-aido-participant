@@ -39,14 +39,14 @@ class AIDODashboard{
 	public static function init(){
 		if(!self::$initialized){
 			// register new user types
-			Core::registerNewUserRole('aido', 'candidate');
-			Core::registerNewUserRole('aido', 'participant', 'dashboard');
-			// set the user role to be an `aido:candidate` (by default)
-			Core::setUserRole('candidate', 'aido');
+			Core::registerNewUserRole('aido_common', 'candidate');
+			Core::registerNewUserRole('aido_common', 'participant', 'dashboard');
+			// set the user role to be an `aido_common:candidate` (by default)
+			Core::setUserRole('candidate', 'aido_common');
 			// update the role of the current user
 			$user_role = Core::getUserRole('duckietown');
 			if(in_array($user_role, ['user', 'engineer'])){
-				Core::setUserRole('participant', 'aido');
+				Core::setUserRole('participant', 'aido_common');
 			}
 			//
 			self::$initialized = true;
