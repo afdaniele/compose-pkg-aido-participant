@@ -68,12 +68,22 @@ function tag {
 }
 
 if [ -f VERSION ]; then
+    # Check if your current source is not already tagged by using current hash
+    GIT_COMMIT=`git rev-parse HEAD`
+    NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
+    # Only tag if no tag already (would be better if the git describe command above could have a silent option)
+    if [ -n "$NEEDS_TAG" ]; then
+        echo -e "${WARNING_FLAG} Current code is already released."
+        exit 0
+    fi
+    # read current version from VERSION file
     BASE_STRING=`cat VERSION`
     BASE_LIST=(`echo $BASE_STRING | tr '.' ' '`)
     V_MAJOR=${BASE_LIST[0]}
     V_MINOR=${BASE_LIST[1]}
     V_PATCH=${BASE_LIST[2]}
     echo -e "${NOTICE_FLAG} Current version: ${WHITE}$BASE_STRING"
+    echo -e "${NOTICE_FLAG} Latest commit hash: ${WHITE}$LATEST_HASH"
     # show changes since last version to help decide the new version
     echo -e "${NOTICE_FLAG} Changes since last version${RESET}"
     git log --pretty=format:"  - %s" "v$BASE_STRING"...HEAD
@@ -85,14 +95,6 @@ if [ -f VERSION ]; then
     read INPUT_STRING
     if [ "$INPUT_STRING" = "" ]; then
         INPUT_STRING=$SUGGESTED_VERSION
-    fi
-    # Check if your current source is not already tagged by using current hash
-    GIT_COMMIT=`git rev-parse HEAD`
-    NEEDS_TAG=`git describe --contains $GIT_COMMIT`
-    # Only tag if no tag already (would be better if the git describe command above could have a silent option)
-    if [ -n "$NEEDS_TAG" ]; then
-        echo -e "${WARNING_FLAG} Current code is already released."
-        exit 0
     fi
     echo -e "${NOTICE_FLAG} Will set new version to be ${WHITE}$INPUT_STRING"
     echo $INPUT_STRING > VERSION
