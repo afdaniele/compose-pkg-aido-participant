@@ -149,7 +149,7 @@ $stats = $res['data']['stats'];
 
 <script type="text/javascript">
 
-var leftTime = moment([2019, 5, 15]).startOf('day').diff(moment(), 'seconds');
+var leftTime = moment([2019, 4, 15]).startOf('day').diff(moment(), 'seconds');
 var duration = moment.duration(leftTime, 'seconds');
 
 function update_time(){
