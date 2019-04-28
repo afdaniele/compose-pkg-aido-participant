@@ -10,13 +10,17 @@ use \system\packages\aido\AIDO;
 use \system\packages\aido_dashboard\AIDODashboard;
 
 
-//Core::getUserLogged('username')
-
 $res = AIDODashboard::getUserInfo();
-if( !$res['success'] )
-Core::throwError( $res['data'] );
+if( !$res['success'] ){
+  Core::throwError( $res['data'] );
+}
 $stats = $res['data']['stats'];
 ?>
+
+<script
+  src="<?php echo Core::getJSscriptURL('moment.js', 'aido_participant') ?>"
+  type="text/javascript">
+</script>
 
 
 <div style="width:100%; margin:auto">
